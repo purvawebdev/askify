@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+@theme {
+  /* --- Brand Colors --- */
+  --color-brand-light: #DAF5F1;  /* Your Secondary Mint */
+  --color-brand: #207568;        /* Your Primary Teal (DEFAULT) */
+  --color-brand-dark: #115E59;   /* Darker Teal for Hovers */
+
+  /* --- Dark Mode Colors --- */
+  --color-dark-bg: #0F172A;      /* Deep Slate */
+  --color-dark-card: #1E293B;    /* Lighter Slate */
+
+  /* --- Fonts --- */
+  --font-sans: "Inter", "sans-serif";
+}
+
+/* Base Styles */
+body {
+  background-color: var(--color-brand-light); /* Default light background */
+  color: #111827; /* Default dark text */
+  font-family: var(--font-sans);
+}
