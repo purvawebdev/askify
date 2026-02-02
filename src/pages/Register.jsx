@@ -56,8 +56,9 @@ const Register = () => {
             placeholder="••••••••"
             required
             onChange={handleChange}
-            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand focus:ring-2 outline-none"
+            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-brand focus:ring-2 outline-none"//add error handling here later for less than 6 digit password
           />
+        
 
           <button
             type="submit"
