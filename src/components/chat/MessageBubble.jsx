@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaRobot } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -14,13 +14,13 @@ const MessageBubble = ({ message }) => {
       {/* Avatar */}
       <div
         className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-          isUser ? "bg-brand text-white" : "bg-gray-200 text-gray-600"
+          isUser ? "bg-brand text-white" : ""
         }`}
       >
         {isUser ? (
           <FaUser className="text-sm" />
         ) : (
-          <FaRobot className="text-sm" />
+          <img src="/robot.png" alt="AI" className="w-8 h-8 rounded-full" />
         )}
       </div>
 

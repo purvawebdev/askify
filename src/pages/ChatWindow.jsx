@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useOutletContext } from "react-router-dom";
+import { useParams, useOutletContext, useLocation } from "react-router-dom";
 import { getChatById, sendMessageStream } from "../api/chatApi";
 import {
   MessageBubble,
@@ -10,10 +10,12 @@ import {
 
 const ChatWindow = () => {
   const { id } = useParams();
+  const location = useLocation();
   const { sidebarOpen, setSidebarOpen } = useOutletContext();
   const [chat, setChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const initialMessageSent = useRef(false);
 
   const messagesEndRef = useRef(null);
 
@@ -32,6 +34,7 @@ const ChatWindow = () => {
       }
     };
     if (id) fetchChat();
+    initialMessageSent.current = false;
   }, [id]);
 
   // Auto-scroll when messages update
@@ -39,24 +42,19 @@ const ChatWindow = () => {
     scrollToBottom();
   }, [chat?.messages]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim() || loading) return;
-
-    const messageToSend = newMessage;
-    setNewMessage("");
-
+  // Stream a message to the backend and update chat state
+  const streamMessage = async (messageText) => {
     // 1. Optimistically add user message
     setChat((prev) => ({
       ...prev,
-      messages: [...prev.messages, { role: "user", content: messageToSend }],
+      messages: [...prev.messages, { role: "user", content: messageText }],
     }));
 
     // 2. Show thinking bubble
     setLoading(true);
 
     try {
-      const response = await sendMessageStream(messageToSend, id);
+      const response = await sendMessageStream(messageText, id);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -124,6 +122,25 @@ const ChatWindow = () => {
         ],
       }));
     }
+  };
+
+  // Handle initial message from Welcome page suggestion chips
+  useEffect(() => {
+    if (chat && location.state?.initialMessage && !initialMessageSent.current) {
+      initialMessageSent.current = true;
+      streamMessage(location.state.initialMessage);
+      // Clear the state so it doesn't re-send on back/forward navigation
+      window.history.replaceState({}, "");
+    }
+  }, [chat, location.state]);
+
+  const handleSend = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || loading) return;
+
+    const messageToSend = newMessage;
+    setNewMessage("");
+    await streamMessage(messageToSend);
   };
 
   if (!chat) {

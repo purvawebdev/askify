@@ -10,7 +10,7 @@ import {
   FaTimes,
   FaTrash,
 } from "react-icons/fa";
-import { getAllChats, createNewChat } from "../api/chatApi";
+import { getAllChats } from "../api/chatApi";
 
 // Group chats by time period
 const groupChatsByDate = (chats) => {
@@ -64,22 +64,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
     fetchHistory();
   }, []);
 
-  const handleNewChat = async () => {
-    try {
-      const data = await createNewChat();
-      // Add it to the top of the list immediately
-      setChats((prev) => [
-        {
-          _id: data.chatId,
-          title: "New Chat",
-          updatedAt: new Date().toISOString(),
-        },
-        ...prev,
-      ]);
-      navigate(`/chat/${data.chatId}`);
-    } catch (err) {
-      console.error("Failed to create new chat", err);
-    }
+  const handleNewChat = () => {
+    // Navigate to the Welcome screen — the chat is created
+    // only when the user actually sends a message
+    navigate("/chat");
   };
 
   const handleLogout = () => {

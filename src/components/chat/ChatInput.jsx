@@ -3,22 +3,25 @@ import { FaPaperPlane } from "react-icons/fa";
 
 const ChatInput = ({ value, onChange, onSubmit, disabled }) => {
   return (
-    <div className="p-4 bg-white border-t">
-      <form onSubmit={onSubmit} className="flex gap-2">
+    <div className="p-4 bg-gray-50">
+      <form
+        onSubmit={onSubmit}
+        className="relative max-w-3xl mx-auto bg-white rounded-2xl shadow-md border border-gray-200 focus-within:border-brand/40 focus-within:shadow-[0_0_20px_rgba(32,117,104,0.15)] transition-all duration-300"
+      >
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Type your message..."
           disabled={disabled}
-          className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:border-brand focus:ring-2 outline-none bg-gray-50"
+          className="w-full px-5 py-4 pr-14 rounded-2xl bg-transparent outline-none text-gray-800 placeholder-gray-400 text-sm disabled:opacity-50"
         />
         <button
           type="submit"
           disabled={disabled || !value.trim()}
-          className="bg-brand hover:bg-brand-dark text-white px-6 rounded-xl transition disabled:opacity-50 flex items-center justify-center"
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-brand hover:bg-brand-dark text-white transition disabled:opacity-30 disabled:hover:bg-brand"
         >
-          <FaPaperPlane />
+          <FaPaperPlane size={13} />
         </button>
       </form>
     </div>
