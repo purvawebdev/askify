@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaPlus, FaMicrophoneSlash, FaSignOutAlt } from "react-icons/fa";
-import api from "../api/axios";
+import { getAllChats, createNewChat } from "../api/chatApi";
 
 const Sidebar = () => {
   const [chats, setChats] = useState([]);
@@ -11,8 +11,8 @@ const Sidebar = () => {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await api.get("/chat");
-        setChats(res.data);
+        const data = await getAllChats();
+        setChats(data);
       } catch (err) {
         console.error("Failed to load chats", err);
       }
@@ -22,8 +22,8 @@ const Sidebar = () => {
 
   const handleNewChat = async () => {
     try {
-      const res = await api.post("/chat/new");
-      navigate(`/chat/${res.data.chatId}`);
+      const data = await createNewChat();
+      navigate(`/chat/${data.chatId}`);
     } catch (err) {
       console.error("Failed to create new chat", err);
     }
