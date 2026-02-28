@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useOutletContext } from "react-router-dom";
 import { getChatById, sendMessageStream } from "../api/chatApi";
 import {
   MessageBubble,
@@ -7,10 +7,10 @@ import {
   ChatHeader,
   ThinkingBubble,
 } from "../components/chat";
-import "../styles/ChatWindow.css";
 
 const ChatWindow = () => {
   const { id } = useParams();
+  const { sidebarOpen, setSidebarOpen } = useOutletContext();
   const [chat, setChat] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -136,7 +136,11 @@ const ChatWindow = () => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
-      <ChatHeader title={chat.title} />
+      <ChatHeader
+        title={chat.title}
+        sidebarOpen={sidebarOpen}
+        onToggleSidebar={() => setSidebarOpen(true)}
+      />
 
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">

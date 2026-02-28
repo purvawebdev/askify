@@ -1,17 +1,21 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import Sidebar from '../components/Sidebar';
+import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "../components/Sidebar";
 
 const ChatLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* 1. Fixed Sidebar */}
-      <Sidebar />
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen((prev) => !prev)}
+      />
 
-      {/* 2. Dynamic Content Area */}
+      {/* Main Content */}
       <div className="flex-1 flex flex-col h-full w-full">
-        {/* <Outlet /> renders the child route (Welcome screen OR Chat Window) */}
-        <Outlet />
+        <Outlet context={{ sidebarOpen, setSidebarOpen }} />
       </div>
     </div>
   );
