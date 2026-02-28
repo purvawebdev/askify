@@ -4,7 +4,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 
 // Import the new stuff
-import ChatLayout from './components/chatLayout';
+import ChatLayout from './components/ChatLayout';
 import Welcome from './pages/Welcome';
 import ChatWindow from './pages/ChatWindow';
 

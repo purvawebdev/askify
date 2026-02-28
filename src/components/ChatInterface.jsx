@@ -1,12 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
-import { Send, Upload } from 'lucide-react';
-import { sendMessage } from '../services/api';
-import FileUpload from './FileUpload';
-import MessageBubble from './MessageBubble';
+import { useState, useRef, useEffect } from "react";
+import { Send, Upload } from "lucide-react";
+import { sendMessage } from "../services/api";
+import FileUpload from "./FileUpload";
+import MessageBubble from "./MessageBubble";
 
 const ChatInterface = () => {
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const messagesEndRef = useRef(null);
@@ -22,34 +22,83 @@ const ChatInterface = () => {
     const userMessage = {
       id: Date.now(),
       text: inputMessage,
-      sender: 'user',
+      sender: "user",
       timestamp: new Date(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
     setIsLoading(true);
 
-    try {
-      const response = await sendMessage(inputMessage);
-      
-      const botMessage = {
-        id: Date.now() + 1,
-        text: response.response,
-        sender: 'bot',
-        timestamp: new Date(),
-      };
+    // Create empty bot message placeholder
+    const botMessageId = Date.now() + 1;
+    const botMessage = {
+      id: botMessageId,
+      text: "",
+      sender: "bot",
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, botMessage]);
 
-      setMessages(prev => [...prev, botMessage]);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch("http://localhost:3000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ message: inputMessage }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = decoder.decode(value);
+        const lines = text.split("\n");
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              const data = JSON.parse(line.slice(6));
+
+              if (data.chunk) {
+                fullText += data.chunk;
+                // Update the bot message with streamed content
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === botMessageId ? { ...msg, text: fullText } : msg,
+                  ),
+                );
+              }
+
+              if (data.error) {
+                throw new Error(data.error);
+              }
+            } catch (e) {
+              // Ignore parsing errors
+            }
+          }
+        }
+      }
     } catch (error) {
       const errorMessage = {
-        id: Date.now() + 1,
-        text: `Error: ${error.message || 'Could not get response'}`,
-        sender: 'bot',
+        id: Date.now() + 2,
+        text: `Error: ${error.message || "Could not get response"}`,
+        sender: "bot",
         timestamp: new Date(),
         isError: true,
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -60,10 +109,10 @@ const ChatInterface = () => {
     const systemMessage = {
       id: Date.now(),
       text: `PDF uploaded! ${data.chunks} chunks processed.`,
-      sender: 'system',
+      sender: "system",
       timestamp: new Date(),
     };
-    setMessages(prev => [...prev, systemMessage]);
+    setMessages((prev) => [...prev, systemMessage]);
   };
 
   return (
@@ -89,18 +138,24 @@ const ChatInterface = () => {
             <p>Upload a PDF and ask questions about it!</p>
           </div>
         )}
-        
+
         {messages.map((message) => (
           <MessageBubble key={message.id} message={message} />
         ))}
-        
+
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <div className="flex space-x-1">
                 <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
               </div>
             </div>
           </div>
@@ -131,7 +186,7 @@ const ChatInterface = () => {
 
       {/* Upload Modal */}
       {showUpload && (
-        <FileUpload 
+        <FileUpload
           onClose={() => setShowUpload(false)}
           onSuccess={handleFileUploadSuccess}
         />
